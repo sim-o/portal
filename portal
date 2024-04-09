@@ -52,10 +52,11 @@ case "$1" in
 	pull)
 		branch="$(branchLast)"
 		git fetch
-		git cherry-pick "$branch"
+		git cherry-pick "$branch" --no-commit
 		;;
 
 	*)
 		echo usage
+		exit 1
 		;;
 esac
