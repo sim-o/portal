@@ -1,0 +1,50 @@
+#!/bin/bash -eo pipefail
+
+initials() {
+	# duet.env.git-author-initials
+	# duet.env.git-committer-initials
+	author="$(git config duet.env.git-author-initials)"
+	committers="$(echo -n $(git config duet.env.git-committer-initials | sed -E 's/, \+?/ /g'))"
+	if [[ -z $author ]]; then exit 1; fi
+	if [[ -z $committers ]]; then
+		initials=$author
+	else
+		initials="$author $committers"
+	fi
+
+	initials="$((tr ' ' '\n' | sort) <<< "$initials")"
+	echo -n "$initials" | tr '\n' '-'
+}
+
+timestamp() {
+	date -u +"%Y-%m-%dT%H:%M:%SZ"
+}
+
+branch() {
+	echo -n "portal-$(initials)-$(timestamp)"
+}
+
+case "$1" in
+	branch)
+		branch
+		echo
+		;;
+
+	push)
+		current="$(git branch --show-current)"
+		branch="$(branch)"
+		git checkout -b "$branch"
+		git add -A
+		git commit -m WIP
+		git push origin "$branch"
+		git checkout "$current"
+		;;
+		
+	pull)
+		;;
+
+	*)
+		echo usage
+		;;
+esac
+
