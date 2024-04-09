@@ -17,22 +17,31 @@ initials() {
 }
 
 timestamp() {
-	date -u +"%Y-%m-%dT%H:%M:%SZ"
+	date -u +"%Y-%m-%dT%H-%M-%SZ"
 }
 
-branch() {
+branchNow() {
 	echo -n "portal-$(initials)-$(timestamp)"
 }
 
+branchLast() {
+	echo -n "$(git branch --list "portal-$(initials)-*" | sort | tail -n 1 | sed -E 's/^ +//')"
+}
+
 case "$1" in
-	branch)
-		branch
+	next)
+		branchNow
+		echo
+		;;
+
+	last)
+		branchLast
 		echo
 		;;
 
 	push)
 		current="$(git branch --show-current)"
-		branch="$(branch)"
+		branch="$(branchNow)"
 		git checkout -b "$branch"
 		git add -A
 		git commit -m WIP
@@ -41,10 +50,12 @@ case "$1" in
 		;;
 		
 	pull)
+		branch="$(branchLast)"
+		git fetch
+		git cherry-pick "$branch"
 		;;
 
 	*)
 		echo usage
 		;;
 esac
-
