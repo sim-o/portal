@@ -1,9 +1,19 @@
 #!/bin/bash -eo pipefail
 
+usage() {
+	cat << EOF
+usage: portal [pull|push]
+	push: creates a branch named for the current git-duet pair and time and commits and pushes the working copy to it
+	pull: applies any new commits from the most recent portal branch for the current pair to the current branch
+EOF
+}
+
 initials() {
+	# git-duet uses these two config variables:
 	# duet.env.git-author-initials
 	# duet.env.git-committer-initials
 	author="$(git config duet.env.git-author-initials)"
+	# multiple committers are delimited with ", +". see https://github.com/git-duet/git-duet/blob/df8e786cb4da5866cb1b11ef5f04130be77af84b/git_config.go#L16
 	committers="$(echo -n $(git config duet.env.git-committer-initials | sed -E 's/, \+?/ /g'))"
 	if [[ -z $author ]]; then exit 1; fi
 	if [[ -z $committers ]]; then
@@ -42,11 +52,14 @@ case "$1" in
 	push)
 		current="$(git branch --show-current)"
 		branch="$(branchNow)"
+		trap "git checkout '$current'" EXIT
+		echo "currently in branch $current, portalling to $branch"
 		git checkout -b "$branch"
 		git add -A
-		git commit -m WIP
+		git commit --no-verify -m WIP
 		git push origin "$branch"
 		git checkout "$current"
+		trap - EXIT
 		;;
 		
 	pull)
@@ -56,7 +69,7 @@ case "$1" in
 		;;
 
 	*)
-		echo usage
+		usage
 		exit 1
 		;;
 esac
