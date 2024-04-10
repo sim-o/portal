@@ -66,6 +66,10 @@ case "$1" in
 		branch="$(branchLast)"
 		git fetch
 		git cherry-pick "$branch" --no-commit
+
+		# clear the commit message which was copied from the portal
+		base="$(git rev-parse --show-toplevel)"
+		echo "" > "$base/.git/COMMIT_EDITMSG"
 		;;
 
 	*)
