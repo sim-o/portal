@@ -8,7 +8,7 @@ Copy the `portal` script into your project's scripts directory.
 Unlike the original portal command, this only supports [git-duet](https://github.com/git-duet/git-duet). Set it up before using portal.
 
 ## Push
-Push local changes to a branch named for the current pair and timestamp. Following the template 'portal-\[pairs]-\[ios-8601-ish time]'
+Push local changes to a branch named for the current pair and timestamp. Following the template 'portal-\[pairs]-\[iso-8601-ish-time]'
 
 ## Pull
 Pull changes from the most recent portal branch for the current pair into the working copy of the local branch.
